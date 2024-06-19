@@ -1,43 +1,36 @@
-from dealer import Dealer
-from player import Player
-
-
 import tkinter as tk
 from random import choice, shuffle
+
+from person import Player, Dealer
 
 # Constantes du jeu
 deck = [2, 3, 4, 5, 6, 7, 8, 9, 10, 'J', 'Q', 'K', 'A'] * 4
 
 def draw_card(deck):
     return choice(deck)
-
 class BlackjackGame:
     def __init__(self, root):
         self.root = root
         self.root.title("Blackjack")
-        
-        self.current_player_index = 0
-        self.players = [Player("Joueur 1"), Player("Joueur 2"), Player("Joueur 3"), Player("Joueur 4")]
-        self.current_player = self.players[self.current_player_index]
-        self.dealer = Dealer()
         self.init_game()
 
     def init_game(self):
+        self.select_players()
         shuffle(deck)
+
+        for player in self.players:
+            player.hand = [draw_card(deck), draw_card(deck)]
 
         self.frame = tk.Frame(self.root)
         self.frame.pack()
-        
+
         self.labels_players = []
         for player in self.players:
             label = tk.Label(self.frame, text=player)
             label.pack()
             self.labels_players.append(label)
-        
-        self.label_dealer = tk.Label(self.frame, text=f"Dealer: [{self.dealer.get_hand()}, '?']")
-        self.label_dealer.pack()
 
-        self.label_bet = tk.Label(self.frame, text=f"{self.current_player.get_name}, placez votre mise:")
+        self.label_bet = tk.Label(self.frame, text=f"{self.player.name}, placez votre mise:")
         self.label_bet.pack()
         
         self.entry_bet = tk.Entry(self.frame)
@@ -55,105 +48,111 @@ class BlackjackGame:
         self.label_result = tk.Label(self.frame, text="")
         self.label_result.pack()
         
-    def next_player(self):
-        self.current_player_index = self.current_player_index % len(self.players)
-        if self.current_player_index == len(self.players):
-            self.current_player= self.dealer
-        else:
-            self.current_player = self.players[self.current_player_index]
+    def select_players(self):
+        self.players = [Player(f"Joueur {i + 1}") for i in range(4)]
+        self.players.append(Dealer())
+        self.current_player = 0
+        self.player = self.players[self.current_player]
 
     def place_bet(self):
         try:
             bet = int(self.entry_bet.get())
-            if 0 < bet <= self.current_player.get_money:
-                self.current_player.set_bet(bet)
-                self.labels_players[self.current_player_index].config(text=self.current_player)
+            if 0 < bet <= self.player.money:
+                self.player.set_bet(bet)
+                self.labels_players[self.current_player].config(text=self.player)
                 self.entry_bet.delete(0, tk.END)
                 self.next_player()
-                
-                # si le joueur est une insance de Dealer
-                if isinstance(self.current_player, Dealer):
+
+                if isinstance(self.player, Dealer):
+                    self.next_player()
                     self.start_turns()
                 else:
-                    self.label_bet.config(text=f"{self.current_player}, placez votre mise:")
+                    self.label_bet.config(text=f"{self.player.name}, placez votre mise:")
             else:
                 self.label_result.config(text="Mise invalide.")
         except ValueError:
             self.label_result.config(text="Veuillez entrer un nombre valide.")
+            
+    def next_player(self):
+        self.current_player += 1
+        self.current_player = self.current_player % 5
+        self.player = self.players[self.current_player]
 
     def start_turns(self):
         self.label_bet.pack_forget()
         self.entry_bet.pack_forget()
         self.button_bet.pack_forget()
-        self.label_result.config(text=f"C'est au tour de {self.current_player}.")
+        self.label_result.config(text=f"C'est au tour de {self.player.name}.")
         self.button_hit.config(state="normal")
         self.button_stand.config(state="normal")
 
     def hit(self):
         card = draw_card(deck)
+        self.player.take_card(card)
+        self.labels_players[self.current_player].config(text=self.player)
         
-        if (self.current_player < 3):
-          self.player_hands[self.current_player].append(card)
-          total = calculate_hand(self.player_hands[self.current_player])
-          self.labels_players[self.current_player].config(text=f"Joueur {self.current_player + 1}: {self.player_hands[self.current_player]} (Total: {total}) - Score: {self.player_scores[self.current_player]}")
-        else:
-          self.dealer_hand.append(card)
-          total = calculate_hand(self.dealer_hand)
-          self.label_dealer.config(text=f"Dealer: {self.dealer_hand} (Total: {total})")
+        if self.player.calculate_hand() == 21:
+            self.label_result.config(text=f"{self.player.name} a fait un blackjack.")
+            self.end_turn()
           
-        if total > 21:
-            self.label_result.config(text=f"Joueur {self.current_player + 1} a dépassé 21 et a perdu sa mise.")
+        if self.player.calculate_hand() > 21:
+            self.label_result.config(text=f"{self.player.name} a dépassé 21 et a perdu sa mise.")
             self.end_turn()
 
     def stand(self):
         self.end_turn()
 
     def end_turn(self):
-        self.current_player += 1
-        self.current_player = self.current_player % 4
-        if self.current_player == 4:
+        self.next_player()
+        if isinstance(self.player, Dealer):
             self.dealer_turn()
         else:
-            self.label_result.config(text=f"C'est au tour du joueur {self.current_player + 1}.")
+            self.label_result.config(text=f"C'est au tour de {self.player.name}.")
             self.button_hit.config(state="normal")
             self.button_stand.config(state="normal")
 
     def dealer_turn(self):
-        self.label_dealer.config(text=f"Dealer: {self.dealer_hand} (Total: {calculate_hand(self.dealer_hand)})")
-        dealer_total = calculate_hand(self.dealer_hand)
-        
-        while dealer_total < 17:
-            self.dealer_hand.append(draw_card(deck))
-            dealer_total = calculate_hand(self.dealer_hand)
-            self.label_dealer.config(text=f"Dealer: {self.dealer_hand} (Total: {dealer_total})")
+        self.players[-1].visible = True
+        self.labels_players[-1].config(text=self.players[-1])
+        while self.players[-1].calculate_hand() < 17:
+            self.players[-1].take_card(draw_card(deck))
+            self.labels_players[-1].config(text=self.players[-1])
 
         self.check_winner()
 
     def check_winner(self):
-        dealer_total = calculate_hand(self.dealer_hand)
         results = []
-        
-        for i in range(4):
-            player_total = calculate_hand(self.player_hands[i])
-            if player_total > 21:
-                results.append(f"Joueur {i + 1} a perdu.")
-            elif dealer_total > 21 or player_total > dealer_total:
-                self.player_scores[i] += self.player_bets[i] * 2
-                results.append(f"Joueur {i + 1} a gagné.")
-            elif player_total < dealer_total:
-                results.append(f"Joueur {i + 1} a perdu.")
+        i = 0
+        for player in self.players:
+            if isinstance(player, Dealer):
+                continue
+            if player.calculate_hand() > 21:
+                results.append(f"{player.name} a perdu.")
+            elif self.players[-1].calculate_hand() > 21 or player.calculate_hand() > self.players[-1].calculate_hand():
+                player.win
+                results.append(f"{player.name} a gagné.")
+            elif player.calculate_hand() < self.players[-1].calculate_hand():
+                player.lose
+                results.append(f"{player.name} a perdu.")
             else:
-                self.player_scores[i] += self.player_bets[i]
-                results.append(f"Joueur {i + 1} a fait un match nul.")
+                player.equality
+                results.append(f"{player.name} a fait un match nul.")
             
-            self.labels_players[i].config(text=f"Joueur {i + 1}: {self.player_hands[i]} (Total: {player_total}) - Score: {self.player_scores[i]}")
+            self.labels_players[i].config(text=player)
+            i += 1
         
         self.label_result.config(text="\n".join(results))
-        self.reset_game()
+
+        self.button_hit.config(state="disabled")
+        self.button_stand.config(state="disabled")
+        self.button_restart = tk.Button(self.frame, text="Recommencer", command=self.reset_game)
+        self.button_restart.pack()
+
 
     def reset_game(self):
         self.current_player = 0
-        self.player_bets = [0, 0, 0, 0]
+        for player in self.players:
+            player.clear_hand()
         self.frame.destroy()
         self.init_game()
 
