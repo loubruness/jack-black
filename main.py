@@ -1,3 +1,7 @@
+from dealer import Dealer
+from player import Player
+
+
 import tkinter as tk
 from random import choice, shuffle
 
@@ -7,50 +11,33 @@ deck = [2, 3, 4, 5, 6, 7, 8, 9, 10, 'J', 'Q', 'K', 'A'] * 4
 def draw_card(deck):
     return choice(deck)
 
-def calculate_hand(hand):
-    total = 0
-    aces = 0
-    for card in hand:
-        if card in ['J', 'Q', 'K']:
-            total += 10
-        elif card == 'A':
-            aces += 1
-            total += 11
-        else:
-            total += card
-    while total > 21 and aces:
-        total -= 10
-        aces -= 1
-    return total
-
 class BlackjackGame:
     def __init__(self, root):
         self.root = root
         self.root.title("Blackjack")
         
-        self.player_scores = [50, 50, 50, 50]
-        self.player_bets = [0, 0, 0, 0]
-        self.current_player = 0
+        self.current_player_index = 0
+        self.players = [Player("Joueur 1"), Player("Joueur 2"), Player("Joueur 3"), Player("Joueur 4")]
+        self.current_player = self.players[self.current_player_index]
+        self.dealer = Dealer()
         self.init_game()
 
     def init_game(self):
         shuffle(deck)
-        self.dealer_hand = [draw_card(deck), draw_card(deck)]
-        self.player_hands = [[draw_card(deck), draw_card(deck)] for _ in range(4)]
 
         self.frame = tk.Frame(self.root)
         self.frame.pack()
-
+        
         self.labels_players = []
-        for i in range(4):
-            label = tk.Label(self.frame, text=f"Joueur {i + 1}: {self.player_hands[i]} (Total: {calculate_hand(self.player_hands[i])}) - Score: {self.player_scores[i]}")
+        for player in self.players:
+            label = tk.Label(self.frame, text=player)
             label.pack()
             self.labels_players.append(label)
         
-        self.label_dealer = tk.Label(self.frame, text=f"Dealer: [{self.dealer_hand[0]}, '?']")
+        self.label_dealer = tk.Label(self.frame, text=f"Dealer: [{self.dealer.get_hand()}, '?']")
         self.label_dealer.pack()
 
-        self.label_bet = tk.Label(self.frame, text=f"Joueur {self.current_player + 1}, placez votre mise:")
+        self.label_bet = tk.Label(self.frame, text=f"{self.current_player.get_name}, placez votre mise:")
         self.label_bet.pack()
         
         self.entry_bet = tk.Entry(self.frame)
@@ -67,21 +54,28 @@ class BlackjackGame:
         
         self.label_result = tk.Label(self.frame, text="")
         self.label_result.pack()
+        
+    def next_player(self):
+        self.current_player_index = self.current_player_index % len(self.players)
+        if self.current_player_index == len(self.players):
+            self.current_player= self.dealer
+        else:
+            self.current_player = self.players[self.current_player_index]
 
     def place_bet(self):
         try:
             bet = int(self.entry_bet.get())
-            if 0 < bet <= self.player_scores[self.current_player]:
-                self.player_bets[self.current_player] = bet
-                self.player_scores[self.current_player] -= bet
-                self.labels_players[self.current_player].config(text=f"Joueur {self.current_player + 1}: {self.player_hands[self.current_player]} (Total: {calculate_hand(self.player_hands[self.current_player])}) - Score: {self.player_scores[self.current_player]}")
+            if 0 < bet <= self.current_player.get_money:
+                self.current_player.set_bet(bet)
+                self.labels_players[self.current_player_index].config(text=self.current_player)
                 self.entry_bet.delete(0, tk.END)
-                self.current_player += 1
-
-                if self.current_player == 4:
+                self.next_player()
+                
+                # si le joueur est une insance de Dealer
+                if isinstance(self.current_player, Dealer):
                     self.start_turns()
                 else:
-                    self.label_bet.config(text=f"Joueur {self.current_player + 1}, placez votre mise:")
+                    self.label_bet.config(text=f"{self.current_player}, placez votre mise:")
             else:
                 self.label_result.config(text="Mise invalide.")
         except ValueError:
@@ -91,7 +85,7 @@ class BlackjackGame:
         self.label_bet.pack_forget()
         self.entry_bet.pack_forget()
         self.button_bet.pack_forget()
-        self.label_result.config(text=f"C'est au tour du joueur {self.current_player + 1}.")
+        self.label_result.config(text=f"C'est au tour de {self.current_player}.")
         self.button_hit.config(state="normal")
         self.button_stand.config(state="normal")
 
