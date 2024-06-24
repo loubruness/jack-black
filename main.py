@@ -271,8 +271,8 @@ class BlackjackGame:
         self.current_player = 0
         for player in self.players:
             player.clear_hand()
-        self.frame.destroy()
-        self.init_game()
+        self.clear_frame()
+        self.choose_nb_players()
 
 # Initialize the Tkinter application
 root = tk.Tk()
