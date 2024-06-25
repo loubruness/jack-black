@@ -130,8 +130,6 @@ class BlackjackGame:
         self.label_result = tk.Label(self.frame, text="")
         self.label_result.pack()
         
-        self.label_jackpot = tk.Label(self.frame, text=f"Jackpot: {self.jackpot}")
-        self.label_jackpot.pack()
 
     def clear_frame(self):
         for widget in self.frame.winfo_children():
