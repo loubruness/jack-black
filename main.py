@@ -1,19 +1,101 @@
 import tkinter as tk
 from random import choice, shuffle
+import json
 
 from person import Player, Dealer
 
-# Constantes du jeu
+# Constants for the game
 deck = [2, 3, 4, 5, 6, 7, 8, 9, 10, 'J', 'Q', 'K', 'A'] * 4
+
+file_path = 'players.json'
+
+def read_player_data(file_path):
+    try:
+        with open(file_path, 'r') as file:
+            return json.load(file)
+    except FileNotFoundError:
+        return []
+
+def write_player_data(file_path, players):
+    with open(file_path, 'w') as file:
+        json.dump(players, file, indent=4)
 
 def draw_card(deck):
     return choice(deck)
+
+def calculate_hand(hand):
+    total = 0
+    aces = 0
+    for card in hand:
+        if card in ['J', 'Q', 'K']:
+            total += 10
+        elif card == 'A':
+            aces += 1
+            total += 11
+        else:
+            total += card
+    while total > 21 and aces:
+        total -= 10
+        aces -= 1
+    return total
+
 class BlackjackGame:
     def __init__(self, root):
         self.root = root
         self.root.title("Blackjack")
-        self.jackpot = 0
-        self.init_game()
+        self.jackpot = 10000
+        self.players = []
+        self.current_player = 0
+        self.frame = tk.Frame(self.root)
+        self.loaded_players = read_player_data(file_path)
+        self.choose_nb_players()
+
+    def choose_nb_players(self):
+        self.clear_frame()
+        self.label_nb_players = tk.Label(self.frame, text="Combien de joueurs voulez-vous ajouter?")
+        self.label_nb_players.pack()
+
+        self.entry_nb_players = tk.Entry(self.frame)
+        self.entry_nb_players.pack()
+
+        self.button_nb_players = tk.Button(self.frame, text="Valider", command=self.get_nb_players)
+        self.button_nb_players.pack()
+
+    def get_nb_players(self):
+        self.nb_players = int(self.entry_nb_players.get())
+        self.current_player = 0
+        self.players = []
+        self.get_player_name()
+
+    def get_player_name(self):
+        self.clear_frame()
+        self.label_name = tk.Label(self.frame, text=f"Quel est le nom du joueur {self.current_player + 1}?")
+        self.label_name.pack()
+
+        self.entry_name = tk.Entry(self.frame)
+        self.entry_name.pack()
+
+        self.button_name = tk.Button(self.frame, text="Submit", command=self.save_player_name)
+        self.button_name.pack()
+
+    def save_player_name(self):
+        player_name = self.entry_name.get()
+        player_data = next((player for player in self.loaded_players if player["name"] == player_name), None)
+
+        if player_data:
+            player = Player(player_data["name"], player_data["money"])
+            print(f"Loaded existing player: {player_name} with {player_data['money']} money.")
+        else:
+            player = Player(player_name)
+            self.loaded_players.append({"id": len(self.loaded_players) + 1, "name": player_name, "money": player.money})
+            print(f"Created new player: {player_name}.")
+
+        self.players.append(player)
+        self.current_player += 1
+        if self.current_player < self.nb_players:
+            self.get_player_name()
+        else:
+            self.init_game()
 
     def init_game(self):
         self.select_players()
@@ -22,8 +104,7 @@ class BlackjackGame:
         for player in self.players:
             player.hand = [draw_card(deck), draw_card(deck)]
 
-        self.frame = tk.Frame(self.root)
-        self.frame.pack()
+        self.clear_frame()
 
         self.labels_players = []
         for player in self.players:
@@ -51,9 +132,15 @@ class BlackjackGame:
         
         self.label_jackpot = tk.Label(self.frame, text=f"Jackpot: {self.jackpot}")
         self.label_jackpot.pack()
-        
+
+    def clear_frame(self):
+        for widget in self.frame.winfo_children():
+            widget.destroy()
+        self.frame.pack_forget()
+        self.frame = tk.Frame(self.root)
+        self.frame.pack()
+
     def select_players(self):
-        self.players = [Player(f"Joueur {i + 1}") for i in range(4)]
         self.players.append(Dealer())
         self.current_player = 0
         self.player = self.players[self.current_player]
@@ -84,7 +171,7 @@ class BlackjackGame:
                 
     def next_player(self):
         self.current_player += 1
-        self.current_player = self.current_player % 5
+        self.current_player = self.current_player % (len(self.players))
         self.player = self.players[self.current_player]
 
     def start_turns(self):
@@ -166,19 +253,26 @@ class BlackjackGame:
         self.button_hit.config(state="disabled")
         self.button_stand.config(state="disabled")
         self.button_restart = tk.Button(self.frame, text="Recommencer", command=self.reset_game)
-        self.button_restart.pack()
-        
-        self.jackpot = 0
-        self.update_jackpot_display()
+        self.button_restart.pack()        
+
+        self.save_updated_player_data()
+
+    def save_updated_player_data(self):
+        for player in self.players:
+            if isinstance(player, Player):
+                player_data = next((p for p in self.loaded_players if p["name"] == player.name), None)
+                if player_data:
+                    player_data["money"] = player.money
+        write_player_data(file_path, self.loaded_players)
 
     def reset_game(self):
         self.current_player = 0
         for player in self.players:
             player.clear_hand()
-        self.frame.destroy()
-        self.init_game()
+        self.clear_frame()
+        self.choose_nb_players()
 
-# Initialisation de l'application Tkinter
+# Initialize the Tkinter application
 root = tk.Tk()
 game = BlackjackGame(root)
 root.mainloop()
