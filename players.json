@@ -1,0 +1,32 @@
+[
+    {
+        "id": 1,
+        "name": "Alice",
+        "money": 1000
+    },
+    {
+        "id": 2,
+        "name": "Bob",
+        "money": 1000
+    },
+    {
+        "id": 3,
+        "name": "Charlie",
+        "money": 400
+    },
+    {
+        "id": 4,
+        "name": "Lou",
+        "money": 36
+    },
+    {
+        "id": 5,
+        "name": "Pauline",
+        "money": 54.0
+    },
+    {
+        "id": 6,
+        "name": "Asma",
+        "money": 15
+    }
+]
