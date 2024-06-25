@@ -46,16 +46,6 @@ class Player(Person):
     self.name = name
     self.money = money
     self.bet = 0
-
-  def equality(self):
-    self.money+=self.bet
-    self.bet=0
-  
-  def win(self):  
-    self.bet=0
-  
-  def lose(self):
-    self.bet=0
   
   def set_bet(self, new_bet):
     self.bet = new_bet

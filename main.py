@@ -12,7 +12,7 @@ class BlackjackGame:
     def __init__(self, root):
         self.root = root
         self.root.title("Blackjack")
-        self.jackpot = 0
+        self.jackpot = 10000
         self.init_game()
 
     def init_game(self):
@@ -138,27 +138,37 @@ class BlackjackGame:
         for player in self.players[:-1]:
             player_hand = player.calculate_hand()
             if player_hand > 21 or (player_hand < dealer_hand and dealer_hand <= 21):
-                player.lose
                 results.append(f"{player.name} a perdu.")
             elif dealer_hand > 21 or player_hand > dealer_hand:
-                player.win
                 winners.append(player)
                 results.append(f"{player.name} a gagné.")
             else:
-                player.equality
+                winners.append(player)
                 results.append(f"{player.name} a fait un match nul.")
-            
+                            
             self.labels_players[i].config(text=player)
             i += 1
         
         if winners:
-            jackpot_share = self.jackpot / len(winners)
             for winner in winners:
+                if self.jackpot == 0:
+                    results.append(f"{winner.name} you ruined us all ! You took the last of the jackpot !")
+                else:
+                    if winner.calculate_hand() == 21:
+                        jackpot_share = winner.bet*1.5
+                        self.jackpot -= jackpot_share
+                    if winner.calculate_hand() < 21:
+                        jackpot_share = winner.bet*2
+                        self.jackpot -= jackpot_share
+                    if winner.calculate_hand() == dealer_hand:
+                        jackpot_share = winner.bet
+                        self.jackpot -= jackpot_share
+                
                 winner.money += jackpot_share
                 results.append(f"{winner.name} receives {jackpot_share:.2f} from the jackpot.")
                 self.labels_players[self.players.index(winner)].config(text=winner)
         else:
-            results.append("The dealer wins the jackpot since no player has won.")
+            results.append("None of you got lucky huh ? Better luck next time !")
             
             
         self.label_result.config(text="\n".join(results))
@@ -168,8 +178,6 @@ class BlackjackGame:
         self.button_restart = tk.Button(self.frame, text="Recommencer", command=self.reset_game)
         self.button_restart.pack()
         
-        self.jackpot = 0
-        self.update_jackpot_display()
 
     def reset_game(self):
         self.current_player = 0
