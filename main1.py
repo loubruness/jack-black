@@ -1,9 +1,6 @@
 import tkinter as tk
-from tkinter import ttk
-from tkinter import Label
 from random import choice, shuffle
 import json
-import os
 
 from person import Player, Dealer
 
@@ -11,7 +8,6 @@ from person import Player, Dealer
 deck = [2, 3, 4, 5, 6, 7, 8, 9, 10, 'J', 'Q', 'K', 'A'] * 4
 
 file_path = 'players.json'
-card_images_path = 'cards/'  # Folder containing card images
 
 def read_player_data(file_path):
     try:
@@ -50,43 +46,20 @@ class BlackjackGame:
         self.jackpot = 10000
         self.players = []
         self.current_player = 0
-        self.frame = tk.Frame(self.root, bg="#01763a")
-        self.frame.pack(fill="both", expand=True)
+        self.frame = tk.Frame(self.root)
         self.loaded_players = read_player_data(file_path)
-        self.card_images = self.load_card_images()
-        self.setup_style()
         self.choose_nb_players()
-
-    def load_card_images(self):
-        card_images = {}
-        for card in deck:
-            if isinstance(card, int):
-                card = str(card)
-                image_file = os.path.join(card_images_path, f"{card}.png")
-                if os.path.exists(image_file):
-                    card_images[f"{card}"] = tk.PhotoImage(file=image_file)
-        print(card_images)
-        return card_images
-
-    def setup_style(self):
-        style = ttk.Style()
-        style.configure("TButton", padding=6, relief="flat", background="#ccc")
-        style.configure("TFrame", background="#01763a")
-        style.configure("TLabel", background="#01763a", foreground="white", font=("Helvetica", 14))
-        style.map("TButton",
-                  background=[('active', '#ffffff'), ('!disabled', '#ffffff')],
-                  foreground=[('active', '#000000'), ('!disabled', '#000000')])
 
     def choose_nb_players(self):
         self.clear_frame()
-        self.label_nb_players = ttk.Label(self.frame, text="Combien de joueurs voulez-vous ajouter?")
-        self.label_nb_players.pack(pady=20)
+        self.label_nb_players = tk.Label(self.frame, text="Combien de joueurs voulez-vous ajouter?")
+        self.label_nb_players.pack()
 
-        self.entry_nb_players = ttk.Entry(self.frame)
-        self.entry_nb_players.pack(pady=10)
+        self.entry_nb_players = tk.Entry(self.frame)
+        self.entry_nb_players.pack()
 
-        self.button_nb_players = ttk.Button(self.frame, text="Valider", command=self.get_nb_players)
-        self.button_nb_players.pack(pady=10)
+        self.button_nb_players = tk.Button(self.frame, text="Valider", command=self.get_nb_players)
+        self.button_nb_players.pack()
 
     def get_nb_players(self):
         self.nb_players = int(self.entry_nb_players.get())
@@ -96,14 +69,14 @@ class BlackjackGame:
 
     def get_player_name(self):
         self.clear_frame()
-        self.label_name = ttk.Label(self.frame, text=f"Quel est le nom du joueur {self.current_player + 1}?")
-        self.label_name.pack(pady=20)
+        self.label_name = tk.Label(self.frame, text=f"Quel est le nom du joueur {self.current_player + 1}?")
+        self.label_name.pack()
 
-        self.entry_name = ttk.Entry(self.frame)
-        self.entry_name.pack(pady=10)
+        self.entry_name = tk.Entry(self.frame)
+        self.entry_name.pack()
 
-        self.button_name = ttk.Button(self.frame, text="Submit", command=self.save_player_name)
-        self.button_name.pack(pady=10)
+        self.button_name = tk.Button(self.frame, text="Submit", command=self.save_player_name)
+        self.button_name.pack()
 
     def save_player_name(self):
         player_name = self.entry_name.get()
@@ -134,45 +107,38 @@ class BlackjackGame:
         self.clear_frame()
 
         self.labels_players = []
-        self.cards_frames = []
-
         for player in self.players:
-            player_frame = ttk.Frame(self.frame)
-            player_frame.pack(pady=10)
-            label = ttk.Label(player_frame, text=player)
+            label = tk.Label(self.frame, text=player)
             label.pack()
-            cards_frame = ttk.Frame(player_frame)
-            cards_frame.pack()
             self.labels_players.append(label)
-            self.cards_frames.append(cards_frame)
 
-        self.label_bet = ttk.Label(self.frame, text=f"{self.player.name}, placez votre mise:")
-        self.label_bet.pack(pady=20)
+        self.label_bet = tk.Label(self.frame, text=f"{self.player.name}, placez votre mise:")
+        self.label_bet.pack()
+        
+        self.entry_bet = tk.Entry(self.frame)
+        self.entry_bet.pack()
+        
+        self.button_bet = tk.Button(self.frame, text="Placer mise", command=self.place_bet)
+        self.button_bet.pack()
 
-        self.entry_bet = ttk.Entry(self.frame)
-        self.entry_bet.pack(pady=10)
+        self.button_hit = tk.Button(self.frame, text="Hit", command=self.hit, state="disabled")
+        self.button_hit.pack()
 
-        self.button_bet = ttk.Button(self.frame, text="Placer mise", command=self.place_bet)
-        self.button_bet.pack(pady=10)
-
-        self.button_hit = ttk.Button(self.frame, text="Hit", command=self.hit, state="disabled")
-        self.button_hit.pack(pady=10)
-
-        self.button_stand = ttk.Button(self.frame, text="Stand", command=self.stand, state="disabled")
-        self.button_stand.pack(pady=10)
-
-        self.label_result = ttk.Label(self.frame, text="")
-        self.label_result.pack(pady=20)
-
-        self.label_jackpot = ttk.Label(self.frame, text=f"Jackpot: {self.jackpot}")
-        self.label_jackpot.pack(pady=20)
+        self.button_stand = tk.Button(self.frame, text="Stand", command=self.stand, state="disabled")
+        self.button_stand.pack()
+        
+        self.label_result = tk.Label(self.frame, text="")
+        self.label_result.pack()
+        
+        self.label_jackpot = tk.Label(self.frame, text=f"")
+        self.label_jackpot.pack()
 
     def clear_frame(self):
         for widget in self.frame.winfo_children():
             widget.destroy()
         self.frame.pack_forget()
-        self.frame = ttk.Frame(self.root, style="TFrame")
-        self.frame.pack(fill="both", expand=True)
+        self.frame = tk.Frame(self.root)
+        self.frame.pack()
 
     def select_players(self):
         self.players.append(Dealer())
@@ -188,7 +154,6 @@ class BlackjackGame:
                 self.labels_players[self.current_player].config(text=self.player)
                 self.entry_bet.delete(0, tk.END)
                 self.next_player()
-                self.update_jackpot_display()
 
                 if isinstance(self.player, Dealer):
                     self.next_player()
@@ -199,10 +164,7 @@ class BlackjackGame:
                 self.label_result.config(text="Mise invalide.")
         except ValueError:
             self.label_result.config(text="Veuillez entrer un nombre valide.")
-
-    def update_jackpot_display(self):
-        self.label_jackpot.config(text=f"Jackpot: {self.jackpot}")
-
+                
     def next_player(self):
         self.current_player += 1
         self.current_player = self.current_player % (len(self.players))
@@ -216,28 +178,15 @@ class BlackjackGame:
         self.button_hit.config(state="normal")
         self.button_stand.config(state="normal")
 
-    def display_hand(self, player, cards_frame):
-        for widget in cards_frame.winfo_children():
-            widget.destroy()
-        for card in player.hand:
-            if isinstance(card, int):
-                card = str(card)
-            suit = 'H'  # Placeholder, update with the actual suit
-            card_image = self.card_images.get(f"{card}", None)
-            if card_image:
-                card_label = tk.Label(cards_frame, image=card_image, bg="#01763a")
-                card_label.pack(side="left")
-
     def hit(self):
         card = draw_card(deck)
         self.player.take_card(card)
         self.labels_players[self.current_player].config(text=self.player)
-        self.display_hand(self.player, self.cards_frames[self.current_player])
-
+        
         if self.player.calculate_hand() == 21:
             self.label_result.config(text=f"{self.player.name} a fait un blackjack.")
             self.end_turn()
-
+          
         if self.player.calculate_hand() > 21:
             self.label_result.config(text=f"{self.player.name} a dépassé 21 et a perdu sa mise.")
             self.end_turn()
@@ -257,11 +206,9 @@ class BlackjackGame:
     def dealer_turn(self):
         self.players[-1].visible = True
         self.labels_players[-1].config(text=self.players[-1])
-        self.display_hand(self.players[-1], self.cards_frames[-1])
         while self.players[-1].calculate_hand() < 17:
             self.players[-1].take_card(draw_card(deck))
             self.labels_players[-1].config(text=self.players[-1])
-            self.display_hand(self.players[-1], self.cards_frames[-1])
 
         self.check_winner()
 
@@ -270,7 +217,7 @@ class BlackjackGame:
         winners = []
         dealer_hand = self.players[-1].calculate_hand()
         i = 0
-
+        
         for player in self.players[:-1]:
             player_hand = player.calculate_hand()
             if player_hand > 21 or (player_hand < dealer_hand and dealer_hand <= 21):
@@ -281,40 +228,40 @@ class BlackjackGame:
             else:
                 winners.append(player)
                 results.append(f"{player.name} a fait un match nul.")
-
+                            
             self.labels_players[i].config(text=player)
-            self.display_hand(player, self.cards_frames[i])
             i += 1
-
+        
         if winners:
             for winner in winners:
                 if self.jackpot == 0:
                     results.append(f"{winner.name} you ruined us all ! You took the last of the jackpot !")
                 else:
                     if winner.calculate_hand() == 21:
-                        jackpot_share = winner.bet * 1.5
+                        jackpot_share = winner.bet*1.5
                         self.jackpot -= jackpot_share
                     if winner.calculate_hand() < 21:
-                        jackpot_share = winner.bet * 2
+                        jackpot_share = winner.bet*2
                         self.jackpot -= jackpot_share
                     if winner.calculate_hand() == dealer_hand:
                         jackpot_share = winner.bet
                         self.jackpot -= jackpot_share
-
+                
                 winner.money += jackpot_share
                 results.append(f"{winner.name} receives {jackpot_share:.2f} from the jackpot.")
                 self.labels_players[self.players.index(winner)].config(text=winner)
         else:
             results.append("None of you got lucky huh ? Better luck next time !")
-
+            
+            
         self.label_result.config(text="\n".join(results))
 
         self.button_hit.config(state="disabled")
         self.button_stand.config(state="disabled")
-        self.button_restart = ttk.Button(self.frame, text="Recommencer", command=self.reset_game)
-        self.button_restart.pack(pady=20)
+        self.button_restart = tk.Button(self.frame, text="Recommencer", command=self.reset_game)
+        self.button_restart.pack()
         self.save_updated_player_data()
-
+        
     def save_updated_player_data(self):
         for player in self.players:
             if isinstance(player, Player):
@@ -333,9 +280,4 @@ class BlackjackGame:
 # Initialize the Tkinter application
 root = tk.Tk()
 game = BlackjackGame(root)
-root.geometry("1000x800") 
-bgimg= tk.PhotoImage(file = "image2.png")
-limg= Label(root, i=bgimg)
-limg.place(x = 0, y = 0) 
-limg.pack()
 root.mainloop()
