@@ -1,9 +1,11 @@
 import tkinter as tk
 from random import choice, shuffle
 import json
+import json
 
 from person import Player, Dealer
 
+# Constants for the game
 # Constants for the game
 deck = [2, 3, 4, 5, 6, 7, 8, 9, 10, 'J', 'Q', 'K', 'A'] * 4
 
@@ -257,8 +259,10 @@ class BlackjackGame:
         self.button_hit.config(state="disabled")
         self.button_stand.config(state="disabled")
         self.button_restart = tk.Button(self.frame, text="Recommencer", command=self.reset_game)
-        self.button_restart.pack()
-        
+        self.button_restart.pack()        
+
+        self.save_updated_player_data()
+
     def save_updated_player_data(self):
         for player in self.players:
             if isinstance(player, Player):
