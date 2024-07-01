@@ -83,11 +83,12 @@ class BlackjackGame:
         player_data = next((player for player in self.loaded_players if player["name"] == player_name), None)
 
         if player_data:
-            player = Player(player_data["name"], player_data["money"])
-            print(f"Loaded existing player: {player_name} with {player_data['money']} money.")
+            player = Player(player_data["name"], player_data["money"], player_data["nb_games"], player_data["nb_wins"], player_data["nb_losses"])
+            print(f"Loaded existing player: {player_name} with {player_data['money']} money and a win rate of {player_data['nb_wins']/player_data['nb_games']}.")
+            print(f"Player {player_name} has played {player.nb_games} games.")
         else:
             player = Player(player_name)
-            self.loaded_players.append({"id": len(self.loaded_players) + 1, "name": player_name, "money": player.money})
+            self.loaded_players.append({"id": len(self.loaded_players) + 1, "name": player_name, "money": player.money, "nb_games": player.nb_games, "nb_wins": player.nb_wins, "nb_losses": player.nb_losses})
             print(f"Created new player: {player_name}.")
 
         self.players.append(player)
@@ -217,12 +218,15 @@ class BlackjackGame:
         i = 0
         
         for player in self.players[:-1]:
+            player.nb_games += 1
             player_hand = player.calculate_hand()
             if player_hand > 21 or (player_hand < dealer_hand and dealer_hand <= 21):
                 results.append(f"{player.name} a perdu.")
+                player.nb_losses += 1
             elif dealer_hand > 21 or player_hand > dealer_hand:
                 winners.append(player)
                 results.append(f"{player.name} a gagné.")
+                player.nb_wins += 1
             else:
                 winners.append(player)
                 results.append(f"{player.name} a fait un match nul.")
@@ -267,6 +271,9 @@ class BlackjackGame:
                 player_data = next((p for p in self.loaded_players if p["name"] == player.name), None)
                 if player_data:
                     player_data["money"] = player.money
+                    player_data["nb_games"] = player.nb_games
+                    player_data["nb_wins"] = player.nb_wins
+                    player_data["nb_losses"] = player.nb_losses
         write_player_data(file_path, self.loaded_players)
 
     def reset_game(self):

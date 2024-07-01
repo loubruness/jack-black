@@ -2,31 +2,57 @@
     {
         "id": 1,
         "name": "Alice",
-        "money": 1000
+        "money": 1000,
+        "nb_games": 3,
+        "nb_wins": 2,
+        "nb_losses": 1
     },
     {
         "id": 2,
         "name": "Bob",
-        "money": 1000
+        "money": 1000,
+        "nb_games": 4,
+        "nb_wins": 2,
+        "nb_losses": 1
     },
     {
         "id": 3,
         "name": "Charlie",
-        "money": 400
+        "money": 400,
+        "nb_games": 5,
+        "nb_wins": 0,
+        "nb_losses": 4
     },
     {
         "id": 4,
         "name": "Lou",
-        "money": 36
+        "money": 80,
+        "nb_games": 3,
+        "nb_wins": 1,
+        "nb_losses": 2
     },
     {
         "id": 5,
         "name": "Pauline",
-        "money": 54.0
+        "money": 54.0,
+        "nb_games": 1,
+        "nb_wins": 1,
+        "nb_losses": 0
     },
     {
         "id": 6,
         "name": "Asma",
-        "money": 15
+        "money": 15,
+        "nb_games": 3,
+        "nb_wins": 2,
+        "nb_losses": 1
+    },
+    {
+        "id": 7,
+        "name": "Test",
+        "money": 120,
+        "nb_games": 2,
+        "nb_wins": 1,
+        "nb_losses": 0
     }
 ]

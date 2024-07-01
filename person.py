@@ -41,11 +41,14 @@ class Dealer(Person):
   
   
 class Player(Person):
-  def __init__(self, name, money = 50):
+  def __init__(self, name, money = 50, nb_games = 1, nb_wins = 0, nb_losses = 0):
     super().__init__()
     self.name = name
     self.money = money
     self.bet = 0
+    self.nb_games = nb_games
+    self.nb_wins = nb_wins
+    self.nb_losses = nb_losses
     
   def set_bet(self, new_bet):
     self.bet = new_bet
