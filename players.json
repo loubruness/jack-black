@@ -54,5 +54,37 @@
         "nb_games": 2,
         "nb_wins": 1,
         "nb_losses": 0
+    },
+    {
+        "id": 8,
+        "name": "1",
+        "money": 58,
+        "nb_games": 9,
+        "nb_wins": 4,
+        "nb_losses": 4
+    },
+    {
+        "id": 9,
+        "name": "2",
+        "money": 47,
+        "nb_games": 7,
+        "nb_wins": 2,
+        "nb_losses": 4
+    },
+    {
+        "id": 10,
+        "name": "3",
+        "money": 104,
+        "nb_games": 6,
+        "nb_wins": 4,
+        "nb_losses": 1
+    },
+    {
+        "id": 11,
+        "name": "4",
+        "money": 66,
+        "nb_games": 2,
+        "nb_wins": 1,
+        "nb_losses": 0
     }
 ]
