@@ -5,19 +5,29 @@ from data_manager import DataManager
 class BlackjackGame:
     def __init__(self, file_path):
         self.jackpot = 10000
+        self.file_path = file_path
+        self.loaded_players = DataManager.read_player_data(self.file_path)
+        self.init_game()
+    
+    def init_game(self):
+        self.nb_players = 0
         self.players = []
         self.current_player = 0
         self.deck = Deck()
-        self.file_path = file_path
-        self.loaded_players = DataManager.read_player_data(self.file_path)
         self.nb_players = 0
-        self.player = None
+        self.state = "start_game"
         self.result = ""
-
+        
+    def start_game(self):
+        self.result = f"Entrez le nombre de joueurs."
+        self.state="set_players"
+        
     def set_nb_players(self, nb_players):
         self.nb_players = nb_players
         self.current_player = 0
         self.players = []
+        self.state="set_names"
+        self.result = f"Entrez le nom du joueur {self.current_player + 1}."
 
     def add_player(self, player_name):
         player_data = next((player for player in self.loaded_players if player["name"] == player_name), None)
@@ -28,20 +38,29 @@ class BlackjackGame:
             self.loaded_players.append({"id": len(self.loaded_players) + 1, "name": player_name, "money": player.money, "nb_games": player.nb_games, "nb_wins": player.nb_wins, "nb_losses": player.nb_losses})
         self.players.append(player)
         self.current_player += 1
+        if self.current_player < self.nb_players:
+            self.result = f"Entrez le nom du joueur {self.current_player + 1}."
+        else:
+            self.state="init_party"
 
-    def init_game(self):
+    def init_party(self):
         self.players.append(Dealer())
         for player in self.players:
             player.hand = [self.deck.draw_card(), self.deck.draw_card()]
         self.current_player = 0
         self.player = self.players[self.current_player]
+        self.state="place_bet"
+        self.result = f"{self.player.name}, placez votre mise."
 
     def place_bet(self, bet):
         self.player.set_bet(bet)
         self.jackpot += bet
         self.next_player()
+        self.result = f"{self.player.name}, placez votre mise."
         if isinstance(self.player, Dealer):
-            self.start_turns()
+            self.next_player()
+            self.state="start_turns"
+            
 
     def next_player(self):
         self.current_player += 1
@@ -49,6 +68,7 @@ class BlackjackGame:
         self.player = self.players[self.current_player]
 
     def start_turns(self):
+        self.state="player_turn"
         self.player_turn()
 
     def player_turn(self):
@@ -80,6 +100,7 @@ class BlackjackGame:
         while dealer.calculate_hand() < 17:
             dealer.take_card(self.deck.draw_card())
         self.check_winner()
+        self.state="end_party"
 
     def check_winner(self):
         results = []
@@ -99,6 +120,8 @@ class BlackjackGame:
                 results.append(f"{player.name} a fait un match nul.")
                 self.jackpot -= player.bet
                 player.money += player.bet
+            player.bet = 0
+            
         self.result = "\n".join(results)
         self.save_updated_player_data()
 
@@ -112,3 +135,9 @@ class BlackjackGame:
                     player_data["nb_wins"] = player.nb_wins
                     player_data["nb_losses"] = player.nb_losses
         DataManager.write_player_data(self.file_path, self.loaded_players)
+        
+    def restart(self):
+        self.init_game()
+
+        
+    

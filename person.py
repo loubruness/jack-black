@@ -1,4 +1,5 @@
 class Person:
+    name=''
     def __init__(self):
         self.hand = []
       
@@ -28,6 +29,7 @@ class Dealer(Person):
     def __init__(self):
         super().__init__()
         self.visible = False
+        self.name = 'Dealer'
 
     def __str__(self):
         if self.visible:
