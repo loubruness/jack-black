@@ -2,6 +2,7 @@ from card import Deck
 from person import Player, Dealer
 from data_manager import DataManager
 from player_factory import PlayerFactory
+from commands import HitCommand, StandCommand
 
 class BlackjackGame:
     def __init__(self, file_path):
@@ -79,8 +80,8 @@ class BlackjackGame:
             self.result = f"C'est au tour de {self.player.name}."
 
     def hit(self):
-        card = self.deck.draw_card()
-        self.player.take_card(card)
+        command = HitCommand(self.player, self.deck)
+        card = command.execute()
         if self.player.calculate_hand() == 21:
             self.result = f"{self.player.name} a fait un blackjack."
             self.end_turn()
@@ -89,7 +90,8 @@ class BlackjackGame:
             self.end_turn()
 
     def stand(self):
-        self.end_turn()
+        command = StandCommand(self)
+        command.execute()
 
     def end_turn(self):
         self.next_player()
