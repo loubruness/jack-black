@@ -58,26 +58,26 @@
     {
         "id": 8,
         "name": "1",
-        "money": 0,
-        "nb_games": 27,
-        "nb_wins": 10,
+        "money": 1,
+        "nb_games": 28,
+        "nb_wins": 11,
         "nb_losses": 16
     },
     {
         "id": 9,
         "name": "2",
-        "money": 35,
-        "nb_games": 23,
+        "money": 34,
+        "nb_games": 24,
         "nb_wins": 7,
-        "nb_losses": 14
+        "nb_losses": 15
     },
     {
         "id": 10,
         "name": "3",
-        "money": 76,
-        "nb_games": 20,
+        "money": 75,
+        "nb_games": 21,
         "nb_wins": 9,
-        "nb_losses": 10
+        "nb_losses": 11
     },
     {
         "id": 11,

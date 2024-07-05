@@ -44,7 +44,7 @@ class BlackjackGame:
         else:
             self.state="init_playing"
 
-    def init_party(self):
+    def init_playing(self):
         self.players.append(PlayerFactory.create_player("dealer", "Dealer"))
         for player in self.players:
             player.hand = [self.deck.draw_card(), self.deck.draw_card()]
