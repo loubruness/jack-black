@@ -13,8 +13,7 @@ class BlackjackGame:
         self.nb_players = 0
         self.players = []
         self.current_player = 0
-        self.deck = Deck()
-        self.nb_players = 0
+        self.deck = Deck(4)
         self.state = "start_game"
         self.result = ""
         
@@ -41,9 +40,9 @@ class BlackjackGame:
         if self.current_player < self.nb_players:
             self.result = f"Entrez le nom du joueur {self.current_player + 1}."
         else:
-            self.state="init_party"
+            self.state="init_playing"
 
-    def init_party(self):
+    def init_playing(self):
         self.players.append(Dealer())
         for player in self.players:
             player.hand = [self.deck.draw_card(), self.deck.draw_card()]
@@ -78,8 +77,7 @@ class BlackjackGame:
             self.result = f"C'est au tour de {self.player.name}."
 
     def hit(self):
-        card = self.deck.draw_card()
-        self.player.take_card(card)
+        self.player.take_card(self.deck.draw_card())
         if self.player.calculate_hand() == 21:
             self.result = f"{self.player.name} a fait un blackjack."
             self.end_turn()
@@ -96,34 +94,12 @@ class BlackjackGame:
 
     def dealer_turn(self):
         dealer = self.players[-1]
-        dealer.visible = True
-        while dealer.calculate_hand() < 17:
-            dealer.take_card(self.deck.draw_card())
-        self.check_winner()
-        self.state="end_party"
-
-    def check_winner(self):
-        results = []
-        dealer_hand = self.players[-1].calculate_hand()
-        for player in self.players[:-1]:
-            player.nb_games += 1
-            player_hand = player.calculate_hand()
-            if player_hand > 21 or (player_hand < dealer_hand and dealer_hand <= 21):
-                results.append(f"{player.name} a perdu.")
-                player.nb_losses += 1
-            elif dealer_hand > 21 or player_hand > dealer_hand:
-                results.append(f"{player.name} a gagné.")
-                player.nb_wins += 1
-                self.jackpot -= player.bet * 2
-                player.money += player.bet * 2
-            else:
-                results.append(f"{player.name} a fait un match nul.")
-                self.jackpot -= player.bet
-                player.money += player.bet
-            player.bet = 0
-            
-        self.result = "\n".join(results)
+        dealer.start_turn(self)
         self.save_updated_player_data()
+        self.state="end_playing"
+
+    
+
 
     def save_updated_player_data(self):
         for player in self.players:

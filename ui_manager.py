@@ -18,16 +18,16 @@ class UIManager:
                 self.choose_nb_players()
             elif self.game.state == "set_names":
                 self.get_player_name()
-            elif self.game.state == "init_party":
-                self.init_party_ui()
+            elif self.game.state == "init_playing":
+                self.init_playing_ui()
             elif self.game.state == "place_bet":
                 self.get_player_bet()
             elif self.game.state == "start_turns":
                 self.start_turns()
             elif self.game.state == "player_turn":
                 self.player_turn()
-            elif self.game.state == "end_party":
-                self.end_party()
+            elif self.game.state == "end_playing":
+                self.end_playing()
             else :
                 print(self.game.state+" Error: Unknown state")
                 self.clear_frame()
@@ -74,9 +74,9 @@ class UIManager:
         self.reload_ui()
  
 
-    def init_party_ui(self):
+    def init_playing_ui(self):
         self.clear_frame()
-        self.game.init_party()
+        self.game.init_playing()
         self.labels_players = []
         for player in self.game.players:
             label = tk.Label(self.frame, text=player)
@@ -139,7 +139,7 @@ class UIManager:
         self.game.stand()
         self.reload_ui()
     
-    def end_party(self):
+    def end_playing(self):
         self.button_hit.destroy()
         self.button_stand.destroy()
         

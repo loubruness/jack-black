@@ -30,7 +30,35 @@ class Dealer(Person):
         super().__init__()
         self.visible = False
         self.name = 'Dealer'
-
+        
+    def start_turn(self,game):
+        self.visible = True
+        while self.calculate_hand() < 17:
+            self.take_card(game.deck.draw_card())
+        self.check_winner(game)
+        
+    def check_winner(self,game):
+        results = []
+        hand = self.calculate_hand()
+        for player in game.players[:-1]:
+            player.nb_games += 1
+            player_hand = player.calculate_hand()
+            if player_hand > 21 or (player_hand < hand and hand <= 21):
+                results.append(f"{player.name} a perdu.")
+                player.nb_losses += 1
+            elif hand > 21 or player_hand > hand:
+                results.append(f"{player.name} a gagné.")
+                player.nb_wins += 1
+                game.jackpot -= player.bet * 2
+                player.money += player.bet * 2
+            else:
+                results.append(f"{player.name} a fait un match nul.")
+                game.jackpot -= player.bet
+                player.money += player.bet
+            player.bet = 0
+        game.result = "\n".join(results)
+  
+        
     def __str__(self):
         if self.visible:
             return f"Dealer: {self.hand} (Total: {self.calculate_hand()})"
