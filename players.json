@@ -58,33 +58,33 @@
     {
         "id": 8,
         "name": "1",
-        "money": 1,
-        "nb_games": 28,
+        "money": 49,
+        "nb_games": 30,
         "nb_wins": 11,
-        "nb_losses": 16
+        "nb_losses": 18
     },
     {
         "id": 9,
         "name": "2",
-        "money": 36,
-        "nb_games": 25,
-        "nb_wins": 8,
-        "nb_losses": 15
+        "money": 35,
+        "nb_games": 28,
+        "nb_wins": 9,
+        "nb_losses": 17
     },
     {
         "id": 10,
         "name": "3",
         "money": 75,
-        "nb_games": 21,
-        "nb_wins": 9,
-        "nb_losses": 11
+        "nb_games": 23,
+        "nb_wins": 10,
+        "nb_losses": 12
     },
     {
         "id": 11,
         "name": "4",
-        "money": 66,
-        "nb_games": 2,
+        "money": 64,
+        "nb_games": 4,
         "nb_wins": 1,
-        "nb_losses": 0
+        "nb_losses": 2
     }
 ]

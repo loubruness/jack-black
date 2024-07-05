@@ -1,17 +1,17 @@
 import random
 
 class Deck:
-
-    # Singleton design pattern
     _instance = None
     
     def __new__(cls, nb_decks=1):
+        # Singleton pattern implementation
         if cls._instance is None:
             cls._instance = super().__new__(cls)
             cls._instance.__init__(nb_decks)
         return cls._instance
     
     def __init__(self, nb_decks=1):
+        # SRP: Initializes the deck with cards and handles the creation and shuffling of cards.
         self.nb_decks = nb_decks
         self.num_card = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A']
         self.color_card = ['♠', '♣', '♦', '♥']
@@ -19,6 +19,7 @@ class Deck:
         random.shuffle(self.cards)
         
     def draw_card(self):
+        # SRP: Draws a card from the deck.
         if not self.cards:
             raise ValueError("No more cards in the deck.")
         return self.cards.pop()
