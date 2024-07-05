@@ -1,6 +1,8 @@
 from card import Deck
 from person import Player, Dealer
 from data_manager import DataManager
+from player_factory import PlayerFactory
+from commands import HitCommand, StandCommand
 
 class BlackjackGame:
     def __init__(self, file_path):
@@ -31,9 +33,9 @@ class BlackjackGame:
     def add_player(self, player_name):
         player_data = next((player for player in self.loaded_players if player["name"] == player_name), None)
         if player_data:
-            player = Player(player_data["name"], player_data["money"], player_data["nb_games"], player_data["nb_wins"], player_data["nb_losses"])
+            player = PlayerFactory.create_player("human", player_data["name"], player_data["money"], player_data["nb_games"], player_data["nb_wins"], player_data["nb_losses"])
         else:
-            player = Player(player_name)
+            player = PlayerFactory.create_player("human", player_name)
             self.loaded_players.append({"id": len(self.loaded_players) + 1, "name": player_name, "money": player.money, "nb_games": player.nb_games, "nb_wins": player.nb_wins, "nb_losses": player.nb_losses})
         self.players.append(player)
         self.current_player += 1
@@ -42,8 +44,8 @@ class BlackjackGame:
         else:
             self.state="init_playing"
 
-    def init_playing(self):
-        self.players.append(Dealer())
+    def init_party(self):
+        self.players.append(PlayerFactory.create_player("dealer", "Dealer"))
         for player in self.players:
             player.hand = [self.deck.draw_card(), self.deck.draw_card()]
         self.current_player = 0
@@ -77,7 +79,8 @@ class BlackjackGame:
             self.result = f"C'est au tour de {self.player.name}."
 
     def hit(self):
-        self.player.take_card(self.deck.draw_card())
+        command = HitCommand(self.player, self.deck)
+        card = command.execute()
         if self.player.calculate_hand() == 21:
             self.result = f"{self.player.name} a fait un blackjack."
             self.end_turn()
@@ -86,7 +89,8 @@ class BlackjackGame:
             self.end_turn()
 
     def stand(self):
-        self.end_turn()
+        command = StandCommand(self)
+        command.execute()
 
     def end_turn(self):
         self.next_player()
