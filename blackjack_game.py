@@ -54,14 +54,22 @@ class BlackjackGame:
         self.result = f"{self.player.name}, placez votre mise."
 
     def place_bet(self, bet):
-        self.player.set_bet(bet)
-        self.jackpot += bet
-        self.next_player()
-        self.result = f"{self.player.name}, placez votre mise."
-        if isinstance(self.player, Dealer):
-            self.next_player()
-            self.state="start_turns"
-            
+        try:
+            bet = int(bet)
+            if 0 < bet <= self.player.money:
+                self.player.set_bet(bet)
+                self.jackpot += bet
+                self.next_player()
+
+                if isinstance(self.player, Dealer):
+                    self.next_player()
+                    self.state="start_turns"
+                else:
+                    self.result = f"{self.player.name}, placez votre mise."
+            else:
+                self.result = "Mise invalide."
+        except ValueError:
+            self.result ="Veuillez entrer un nombre valide."        
 
     def next_player(self):
         self.current_player += 1

@@ -106,7 +106,7 @@ class UIManager:
         self.update_ui()
             
     def save_player_bet(self,event=None):
-        bet = int(self.entry.get())
+        bet = self.entry.get()
         self.game.place_bet(bet)
         self.reload_ui()       
         
