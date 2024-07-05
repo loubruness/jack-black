@@ -37,6 +37,9 @@ class BlackjackGame:
         player_data = next((player for player in self.loaded_players if player["name"] == player_name), None)
         if player_data:
             player = PlayerFactory.create_player("human", player_data["name"], player_data["money"], player_data["nb_games"], player_data["nb_wins"], player_data["nb_losses"])
+            if player.money == 0:
+                player.money = 50
+                print(f"{player.name} a reçu 50€ pour rejouer.")
         else:
             player = PlayerFactory.create_player("human", player_name)
             self.loaded_players.append({"id": len(self.loaded_players) + 1, "name": player_name, "money": player.money, "nb_games": player.nb_games, "nb_wins": player.nb_wins, "nb_losses": player.nb_losses})
