@@ -15,7 +15,7 @@ class UIManager:
             self.label_result.config(text=self.game.result)
             
             if self.game.state == "set_players":
-                self.choose_nb_players()
+                self.get_nb_players()
             elif self.game.state == "set_names":
                 self.get_player_name()
             elif self.game.state == "init_playing":
@@ -46,17 +46,17 @@ class UIManager:
         self.game.start_game()
         self.reload_ui()
         
-    def choose_nb_players(self):
+    def get_nb_players(self):
         self.entry.delete(0, tk.END)
         
         self.entry.unbind("<Return>")
-        self.entry.bind("<Return>", self.get_nb_players)
+        self.entry.bind("<Return>", self.save_nb_players)
         
-        self.button_submit.config(command=self.get_nb_players)
+        self.button_submit.config(command=self.save_nb_players)
 
 
-    def get_nb_players(self,event=None):
-        nb_players = int(self.entry.get())
+    def save_nb_players(self,event=None):
+        nb_players = self.entry.get()
         self.game.set_nb_players(nb_players)
         self.reload_ui()
 
@@ -109,11 +109,6 @@ class UIManager:
         bet = self.entry.get()
         self.game.place_bet(bet)
         self.reload_ui()       
-        
-    def place_bet(self):
-        bet = int(self.entry.get())
-        self.game.place_bet(bet)
-        self.reload_ui()
     
     def start_turns(self):  
         self.button_hit = tk.Button(self.frame, text="Hit", command=self.hit)

@@ -24,11 +24,14 @@ class BlackjackGame:
         self.state="set_players"
         
     def set_nb_players(self, nb_players):
-        self.nb_players = nb_players
-        self.current_player = 0
-        self.players = []
-        self.state="set_names"
-        self.result = f"Entrez le nom du joueur {self.current_player + 1}."
+        try:
+            self.nb_players = int(nb_players)
+            self.current_player = 0
+            self.players = []
+            self.state="set_names"
+            self.result = f"Entrez le nom du joueur {self.current_player + 1}."
+        except ValueError:
+            self.result = "Veuillez entrer un nombre valide."
 
     def add_player(self, player_name):
         player_data = next((player for player in self.loaded_players if player["name"] == player_name), None)
